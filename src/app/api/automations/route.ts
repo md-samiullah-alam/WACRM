@@ -15,9 +15,19 @@ export async function GET() {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('account_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!profile?.account_id) {
+    return NextResponse.json({ error: 'Profile not linked to an account' }, { status: 403 })
+  }
+
   const { data, error } = await supabase
     .from('automations')
     .select('*')
+    .eq('account_id', profile.account_id)
     .order('created_at', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ automations: data ?? [] })
@@ -78,11 +88,24 @@ export async function POST(request: Request) {
     }
   }
 
+  // Resolve account_id for tenancy. The trigger from migration 021
+  // should auto-populate this, but we set it explicitly so inserts
+  // work even if the trigger hasn't been installed yet.
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('account_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!profile?.account_id) {
+    return NextResponse.json({ error: 'Profile not linked to an account' }, { status: 403 })
+  }
+
   const admin = supabaseAdmin()
   const { data: automation, error: insertErr } = await admin
     .from('automations')
     .insert({
       user_id: user.id,
+      account_id: profile.account_id,
       name: effectiveName,
       description: effectiveDescription ?? null,
       trigger_type: effectiveTriggerType,

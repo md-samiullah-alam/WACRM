@@ -74,12 +74,26 @@ export async function POST(request: Request) {
       )
     }
 
-    // Fetch conversation and contact
+    // Fetch the caller's profile to resolve account_id for tenancy.
+    const { data: profile, error: profileErr } = await supabase
+      .from('profiles')
+      .select('account_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (profileErr || !profile?.account_id) {
+      return NextResponse.json(
+        { error: 'Profile not linked to an account' },
+        { status: 403 },
+      )
+    }
+
+    // Fetch conversation and contact. RLS (is_account_member) scopes
+    // the result to the caller's account automatically — no user_id
+    // filter needed post-migration 017.
     const { data: conversation, error: convError } = await supabase
       .from('conversations')
       .select('*, contact:contacts(*)')
       .eq('id', conversation_id)
-      .eq('user_id', user.id)
       .single()
 
     if (convError || !conversation) {
@@ -106,12 +120,13 @@ export async function POST(request: Request) {
       )
     }
 
-    // Fetch and decrypt WhatsApp config
+    // Fetch and decrypt WhatsApp config — scoped by account_id so any
+    // member of the account can send through the shared WhatsApp number.
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
       .select('*')
-      .eq('user_id', user.id)
-      .single()
+      .eq('account_id', profile.account_id)
+      .maybeSingle()
 
     if (configError || !config) {
       return NextResponse.json(
@@ -196,7 +211,7 @@ export async function POST(request: Request) {
       const { data } = await supabase
         .from('message_templates')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('account_id', profile.account_id)
         .eq('name', template_name)
         .eq('language', template_language || 'en_US')
         .maybeSingle()
@@ -337,7 +352,7 @@ export async function POST(request: Request) {
           ended_at: new Date().toISOString(),
           end_reason: 'agent_replied',
         })
-        .eq('user_id', user.id)
+        .eq('account_id', profile.account_id)
         .eq('contact_id', contact.id)
         .eq('status', 'active')
       if (pauseErr) {

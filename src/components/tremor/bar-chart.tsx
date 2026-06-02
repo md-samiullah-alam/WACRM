@@ -35,7 +35,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import type { AxisDomain } from "recharts/types/util/types"
+// recharts v3.8.x no longer ships `recharts/types/util/types` as a
+// separate module. Define AxisDomain locally — it matches the domain
+// prop accepted by XAxis / YAxis in recharts v3: [min, max] where
+// each element is string, number, or "auto".
+type AxisDomain = [string | number, string | number]
 
 import { cn as cx } from "@/lib/utils"
 import {
@@ -792,7 +796,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                 y: layout === "horizontal" ? 0 : undefined,
                 x: layout === "horizontal" ? undefined : yAxisWidth + 20,
               }}
-              content={({ active, payload, label }) => {
+              content={({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string | number }) => {
                 const cleanPayload: TooltipProps["payload"] = payload
                   ? payload.map((item: any) => ({
                       category: item.dataKey,
@@ -838,7 +842,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
               <RechartsLegend
                 verticalAlign="top"
                 height={legendHeight}
-                content={({ payload }) =>
+                content={({ payload }: { payload?: any[] }) =>
                   ChartLegend(
                     { payload },
                     categoryColors,

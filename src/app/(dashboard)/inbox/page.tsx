@@ -121,7 +121,8 @@ export default function InboxPage() {
     }
   }, []);
 
-  // Check WhatsApp connection status on mount
+  // Check WhatsApp connection status on mount — scoped by account_id
+  // so every team member sees the correct status, not just the config owner.
   useEffect(() => {
     const checkConnection = async () => {
       const supabase = createClient();
@@ -132,12 +133,17 @@ export default function InboxPage() {
 
       if (!user) return;
 
-      // Table is `whatsapp_config` (singular) — the previous "whatsapp_configs"
-      // query always returned no rows, so the banner always showed "not connected".
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("account_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!profile?.account_id) return;
+
       const { data } = await supabase
         .from("whatsapp_config")
         .select("status")
-        .eq("user_id", user.id)
+        .eq("account_id", profile.account_id)
         .maybeSingle();
 
       setWhatsappConnected(data?.status === "connected");
