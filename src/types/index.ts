@@ -47,8 +47,88 @@ export interface Account {
   name: string;
   /** auth.users.id of the immutable owner. */
   owner_user_id: string;
+  /** 7-day trial tracking */
+  trial_started_at: string | null;
+  trial_ended_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// ============================================================
+// Subscription / Plan types (022_subscription_plans.sql)
+// ============================================================
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  /** One-time setup fee in INR */
+  base_price: number;
+  /** Yearly maintenance/dev/support fee in INR */
+  annual_fee: number;
+  features: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SubscriptionStatus = "active" | "expired" | "cancelled" | "past_due";
+
+export interface AccountSubscription {
+  id: string;
+  account_id: string;
+  plan_id: string;
+  status: SubscriptionStatus;
+  base_price_paid: number;
+  annual_fee_paid: number;
+  annual_fee_due_date: string | null;
+  annual_fee_paid_until: string | null;
+  /** Razorpay order id for the base payment */
+  razorpay_order_id: string | null;
+  /** Razorpay payment id */
+  razorpay_payment_id: string | null;
+  /** Razorpay signature verification */
+  razorpay_signature: string | null;
+  purchased_at: string;
+  expires_at: string | null;
+  cancelled_at: string | null;
+  created_at: string;
+  updated_at: string;
+  plan?: SubscriptionPlan;
+}
+
+export interface SubscriptionPaymentLog {
+  id: string;
+  account_id: string;
+  subscription_id: string | null;
+  amount: number;
+  payment_type: "base" | "annual" | "manual";
+  payment_method: string;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  notes: string | null;
+  paid_by_user_id: string | null;
+  paid_at: string;
+  created_at: string;
+}
+
+/**
+ * Combined subscription state for an account — trial info + active plan.
+ */
+export interface SubscriptionState {
+  /** Is the account currently in its free trial? */
+  inTrial: boolean;
+  /** Remaining trial seconds (0 if not in trial). */
+  trialSecondsRemaining: number;
+  /** Trial start date. */
+  trialStartedAt: string | null;
+  /** Does the account have any feature access (trial OR active sub)? */
+  hasFeatureAccess: boolean;
+  /** Does the account have annual support (maintenance/dev/support) access? */
+  hasAnnualSupportAccess: boolean;
+  /** Active subscription, if any. */
+  subscription: AccountSubscription | null;
 }
 
 /**

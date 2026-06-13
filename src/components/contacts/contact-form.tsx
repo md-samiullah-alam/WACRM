@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useRequirePlan } from '@/hooks/use-require-plan';
 import { toast } from 'sonner';
 import type { Contact, Tag, ContactTag } from '@/types';
 import {
@@ -34,6 +35,7 @@ export function ContactForm({
   onSaved,
 }: ContactFormProps) {
   const supabase = createClient();
+  const { requirePlan } = useRequirePlan();
   const isEdit = !!contact;
 
   const [name, setName] = useState('');
@@ -77,6 +79,7 @@ export function ContactForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!requirePlan()) return;
 
     if (!phone.trim()) {
       toast.error('Phone number is required');

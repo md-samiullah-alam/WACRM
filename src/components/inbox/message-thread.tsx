@@ -37,6 +37,7 @@ import { MessageActions } from "./message-actions";
 import { MessageComposer } from "./message-composer";
 import { TemplatePicker } from "./template-picker";
 import { buildReplyPreview } from "./reply-quote";
+import { useRequirePlan } from "@/hooks/use-require-plan";
 import { toast } from "sonner";
 
 interface ReplyDraft {
@@ -416,9 +417,12 @@ export function MessageThread({
     }
   }, [messages]);
 
+  const { requirePlan } = useRequirePlan();
+
   const handleSend = useCallback(
     async (text: string, replyToId?: string) => {
       if (!conversation) return;
+      if (!requirePlan()) return;
 
       const tempId = `temp-${Date.now()}`;
 
@@ -470,7 +474,7 @@ export function MessageThread({
         onUpdateMessage(tempId, { status: "failed" });
       }
     },
-    [conversation, onNewMessage, onUpdateMessage]
+    [conversation, onNewMessage, onUpdateMessage, requirePlan]
   );
 
   const handleStatusChange = useCallback(

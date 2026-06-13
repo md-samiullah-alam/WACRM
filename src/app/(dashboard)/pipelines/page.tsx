@@ -112,9 +112,21 @@ export default function PipelinesPage() {
     const user = session?.user;
     if (!user) return null;
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("account_id")
+      .eq("user_id", user.id)
+      .single();
+
+    const accountId = profile?.account_id;
+    if (!accountId) {
+      console.error("No account_id found for user — cannot seed pipeline");
+      return null;
+    }
+
     const { data: pipeline, error } = await supabase
       .from("pipelines")
-      .insert({ user_id: user.id, name: "Sales Pipeline" })
+      .insert({ user_id: user.id, account_id: accountId, name: "Sales Pipeline" })
       .select()
       .single();
 

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTotalUnread } from "@/hooks/use-total-unread";
 import {
+  CreditCard,
   Crown,
   GitBranch,
   LayoutDashboard,
@@ -97,6 +98,7 @@ const navItems: NavItem[] = [
 ];
 
 const bottomNavItems = [
+  { href: "/plans", label: "Plans", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -180,11 +182,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             close button is hidden since the sidebar is always-visible. */}
         <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-slate-800 px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <MessageSquare className="h-4 w-4" />
-            </div>
+            <img
+              src="https://res.cloudinary.com/ddk4lshru/image/upload/WhatsApp_Image_2026-01-16_at_9.37.23_PM_eqbatz.jpg"
+              alt="OptiFlow"
+              className="h-8 w-8 rounded-lg object-cover"
+            />
             <span className="text-sm font-semibold text-white">
-              CRM Template for WhatsApp
+              OptiFlow
             </span>
           </Link>
           <button

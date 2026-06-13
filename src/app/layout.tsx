@@ -13,16 +13,16 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: "OptiFlow — WhatsApp CRM",
+    template: "%s — OptiFlow",
   },
-  description: "Self-hostable CRM template for WhatsApp.",
+  description: "Complete WhatsApp CRM with shared inbox, contacts, pipelines, broadcasts, automations, and flow builder.",
   robots: {
     index: false,
     follow: false,
   },
   icons: {
-    icon: [{ url: "/icon" }],
+    icon: [{ url: "https://res.cloudinary.com/ddk4lshru/image/upload/WhatsApp_Image_2026-01-16_at_9.37.23_PM_eqbatz.jpg" }],
   },
   formatDetection: {
     email: false,
@@ -76,6 +76,11 @@ export default function RootLayout({
           id="theme-boot"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
+        />
+        <Script
+          id="razorpay-checkout"
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
         />
       </head>
       <body className="min-h-full bg-background text-foreground font-sans">
