@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const TRIAL_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+export const TRIAL_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export interface TrialInfo {
   inTrial: boolean;
@@ -14,11 +14,11 @@ export interface TrialInfo {
  *
  * The trial is considered "active" when:
  *   1. trial_started_at is set on the accounts row
- *   2. The current time is within 5 minutes of trial_started_at
+ *   2. The current time is within 7 days of trial_started_at
  *
  * The trial is NOT active when:
  *   1. trial_started_at is NULL (shouldn't happen after migration 024)
- *   2. More than 5 minutes have passed since trial_started_at
+ *   2. More than 7 days have passed since trial_started_at
  *
  * IMPORTANT: There is NO mechanism to reset the trial.
  * The trial_started_at is set ONCE at account creation
@@ -86,8 +86,20 @@ export async function getTrialState(
  * Examples: "45s", "2m 30s", "4m 59s"
  */
 export function formatTrialTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
+  if (seconds <= 0) return "0s";
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  if (mins === 0) return `${secs}s`;
-  return `${mins}m ${secs}s`;
+
+  if (days > 0) {
+    return `${days}d ${hours}h`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${mins}m`;
+  }
+  if (mins > 0) {
+    return `${mins}m ${secs}s`;
+  }
+  return `${secs}s`;
 }

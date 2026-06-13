@@ -58,7 +58,7 @@ export function canUseFeature(state: SubscriptionState | null): FeatureGateResul
   if (!state.inTrial && !state.hasFeatureAccess) {
     return {
       allowed: false,
-      reason: "Your 5-minute free trial has expired. Purchase the Yearly Plan to continue using all features.",
+      reason: "Your 7-day free trial has expired. Purchase the Yearly Plan to continue using all features.",
     };
   }
 

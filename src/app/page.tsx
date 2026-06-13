@@ -107,7 +107,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center relative z-10">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 text-sm text-primary mb-6">
               <Sparkles className="h-4 w-4" />
-              5-Minute Free Trial — No Credit Card Required
+              7-Day Free Trial — No Credit Card Required
             </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight max-w-4xl mx-auto">
             WhatsApp CRM That Works
@@ -205,7 +205,7 @@ export default function LandingPage() {
 
             <div className="mb-6">
               <span className="text-5xl font-extrabold text-white">FREE</span>
-              <span className="text-slate-400 text-lg block mt-1">5 minutes</span>
+              <span className="text-slate-400 text-lg block mt-1">7-Day</span>
             </div>
 
             <ul className="space-y-3 text-left mb-8">
